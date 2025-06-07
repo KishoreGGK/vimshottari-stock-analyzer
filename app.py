@@ -1,14 +1,17 @@
-# Updated Streamlit App using flatlib instead of swisseph
+# Updated Streamlit App using flatlib with DEMO Ephemeris (Streamlit Cloud Compatible)
 
 import streamlit as st
 import yfinance as yf
-from flatlib.chart import Chart
 from flatlib.datetime import Datetime
 from flatlib.geopos import GeoPos
 from flatlib import const
-from flatlib.ephem import Ephem
+from flatlib.chart import Chart
+from flatlib import ephem
 import datetime
 import plotly.graph_objects as go
+
+# === Force flatlib to use DEMO ephemeris (no swisseph) === #
+ephem.set_ephem_dir('DEMO')
 
 # Constants
 DEFAULT_TIME = datetime.time(10, 0)  # 10 AM IST
@@ -91,7 +94,7 @@ def plot_with_dashas(df, dasha_periods):
     st.plotly_chart(fig, use_container_width=True)
 
 # Streamlit UI
-st.title("Vimshottari Dasha Stock Analyzer (Streamlit Cloud Compatible)")
+st.title("Vimshottari Dasha Stock Analyzer (Cloud Compatible)")
 
 symbol = st.text_input("Enter NSE stock symbol", value="RELIANCE").upper()
 listing_date = st.date_input("Enter Listing Date", value=datetime.date(2000, 1, 1))
@@ -108,7 +111,11 @@ if st.button("Calculate & Plot"):
         st.success(f"Starting Mahadasha: {DASHA_SEQUENCE[start_idx]} (Balance: {balance:.2%})")
 
         df = yf.download(symbol + ".NS", start=listing_date.strftime('%Y-%m-%d'))
-        plot_with_dashas(df, dasha_periods)
+        if df.empty:
+            st.warning("No stock data found. Please check the symbol and date.")
+        else:
+            plot_with_dashas(df, dasha_periods)
 
     except Exception as e:
         st.error(f"Error: {e}")
+
