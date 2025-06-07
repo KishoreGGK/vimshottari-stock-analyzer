@@ -1,5 +1,4 @@
 streamlit
 yfinance
-pytz
-swisseph
+flatlib
 plotly
